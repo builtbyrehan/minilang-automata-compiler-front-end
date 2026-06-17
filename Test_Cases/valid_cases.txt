@@ -1,0 +1,11 @@
+int x = 10;
+print(x);
+---
+int marks = 85;
+if marks > 50 {
+    print(marks);
+}
+---
+int x = 10;
+x = x + 5;
+print(x);

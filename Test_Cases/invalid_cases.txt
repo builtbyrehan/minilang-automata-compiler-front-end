@@ -1,0 +1,21 @@
+int x = 10
+print(x);
+---
+int 123 = 10;
+---
+print x;
+---
+if x > 5
+    print(x);
+---
+print(y);
+---
+x = 10;
+---
+int x = 10;
+int x = 20;
+---
+int x = 10;
+if y > 5 {
+    print(x);
+}

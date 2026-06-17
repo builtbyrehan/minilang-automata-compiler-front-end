@@ -1,0 +1,105 @@
+MINILANG COMPLETE TEST RESULTS
+======================================================================
+
+VALID TEST CASES
+----------------------------------------------------------------------
+
+Valid Case 1:
+int x = 10;
+print(x);
+Result: PASSED ✅
+Lexical Analysis: Passed
+Syntax Analysis: Passed
+Semantic Analysis: Passed
+Symbol Table:
+  x → type=int, line=1, column=5
+
+Valid Case 2:
+int marks = 85;
+if marks > 50 {
+    print(marks);
+}
+Result: PASSED ✅
+Lexical Analysis: Passed
+Syntax Analysis: Passed
+Semantic Analysis: Passed
+Symbol Table:
+  marks → type=int, line=1, column=5
+
+Valid Case 3:
+int x = 10;
+x = x + 5;
+print(x);
+Result: PASSED ✅
+Lexical Analysis: Passed
+Syntax Analysis: Passed
+Semantic Analysis: Passed
+Symbol Table:
+  x → type=int, line=1, column=5
+
+INVALID TEST CASES
+----------------------------------------------------------------------
+
+Invalid Case 1:
+int x = 10
+print(x);
+Result: Correctly Detected Error ✅
+Detected Phase: Lexical/Syntax Analysis
+Syntax Error at line 2, column 1: Expected ;, found 'print'
+Symbol Table: Empty
+
+Invalid Case 2:
+int 123 = 10;
+Result: Correctly Detected Error ✅
+Detected Phase: Lexical/Syntax Analysis
+Syntax Error at line 1, column 5: Expected IDENTIFIER, found '123'
+Symbol Table: Empty
+
+Invalid Case 3:
+print x;
+Result: Correctly Detected Error ✅
+Detected Phase: Lexical/Syntax Analysis
+Syntax Error at line 1, column 7: Expected (, found 'x'
+Symbol Table: Empty
+
+Invalid Case 4:
+if x > 5
+    print(x);
+Result: Correctly Detected Error ✅
+Detected Phase: Lexical/Syntax Analysis
+Syntax Error at line 2, column 5: Expected {, found 'print'
+Symbol Table: Empty
+
+Invalid Case 5:
+print(y);
+Result: Correctly Detected Error ✅
+Detected Phase: Semantic Analysis
+Semantic Error at line 1, column 7: Variable 'y' used before declaration.
+Symbol Table: Empty
+
+Invalid Case 6:
+x = 10;
+Result: Correctly Detected Error ✅
+Detected Phase: Semantic Analysis
+Semantic Error at line 1, column 1: Variable 'x' used before declaration.
+Symbol Table: Empty
+
+Invalid Case 7:
+int x = 10;
+int x = 20;
+Result: Correctly Detected Error ✅
+Detected Phase: Semantic Analysis
+Semantic Error at line 2, column 5: Variable 'x' is already declared.
+Symbol Table:
+  x → type=int, line=1, column=5
+
+Invalid Case 8:
+int x = 10;
+if y > 5 {
+    print(x);
+}
+Result: Correctly Detected Error ✅
+Detected Phase: Semantic Analysis
+Semantic Error at line 2, column 4: Variable 'y' used before declaration.
+Symbol Table:
+  x → type=int, line=1, column=5
