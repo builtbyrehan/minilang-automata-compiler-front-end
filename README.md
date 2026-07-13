@@ -1,695 +1,844 @@
-# MiniLang: Automata-Based Compiler Front-End
+<div align="center">
+
+# ⚙️ MiniLang Compiler Front-End
+
+### From Automata Theory to a Working Compiler Pipeline
+
+**A compact, interactive compiler front-end built with Python, DFA-inspired lexical analysis, CFG-based recursive-descent parsing, semantic validation, automated tests, and Streamlit visualizations.**
+
+<br>
+
+[![Python](https://img.shields.io/badge/Python-100%25-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Interactive_UI-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Graphviz](https://img.shields.io/badge/Graphviz-DOT_Visualizations-2596BE?style=for-the-badge)](https://graphviz.org/)
+[![DFA](https://img.shields.io/badge/Automata-DFA-6C63FF?style=for-the-badge)](#automata-concepts)
+[![CFG](https://img.shields.io/badge/Grammar-CFG-8A2BE2?style=for-the-badge)](#minilang-grammar)
+[![Tests](https://img.shields.io/badge/Tests-All_Passing-22C55E?style=for-the-badge)](#testing)
+[![Academic Project](https://img.shields.io/badge/Type-Academic_Project-F59E0B?style=for-the-badge)](#academic-context)
+
+<br>
+
+[![GitHub stars](https://img.shields.io/github/stars/builtbyrehan/minilang-automata-compiler-front-end?style=flat-square&logo=github)](https://github.com/builtbyrehan/minilang-automata-compiler-front-end/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/builtbyrehan/minilang-automata-compiler-front-end?style=flat-square&logo=github)](https://github.com/builtbyrehan/minilang-automata-compiler-front-end/forks)
+[![GitHub repo size](https://img.shields.io/github/repo-size/builtbyrehan/minilang-automata-compiler-front-end?style=flat-square)](https://github.com/builtbyrehan/minilang-automata-compiler-front-end)
+[![GitHub last commit](https://img.shields.io/github/last-commit/builtbyrehan/minilang-automata-compiler-front-end?style=flat-square)](https://github.com/builtbyrehan/minilang-automata-compiler-front-end/commits/main)
+[![GitHub contributors](https://img.shields.io/github/contributors/builtbyrehan/minilang-automata-compiler-front-end?style=flat-square)](https://github.com/builtbyrehan/minilang-automata-compiler-front-end/graphs/contributors)
+
+<br>
+
+[Overview](#overview) •
+[Features](#key-features) •
+[Quick Start](#quick-start) •
+[Grammar](#minilang-grammar) •
+[Testing](#testing) •
+[Architecture](#compiler-architecture) •
+[Roadmap](#roadmap)
+
+</div>
+
+---
 
 ## Overview
 
-**MiniLang** is a Theory of Automata project based on the topic **F2: Automata in Compiler Design**.
-The project implements a mini compiler front-end for a small programming language using core automata concepts.
+**MiniLang** is an educational compiler front-end that demonstrates how formal-language and automata concepts are applied in compiler construction.
 
-The system performs:
+The project accepts source code written in a small custom language and processes it through three core compiler phases:
 
-* Lexical Analysis using DFA-based token recognition
-* Syntax Analysis using CFG-based parsing
-* Semantic Analysis using a Symbol Table
-* Error Detection and Reporting
-* Console-based execution
-* Streamlit-based GUI demonstration
+1. **Lexical analysis** converts characters into tokens through DFA-like scanning.
+2. **Syntax analysis** validates the token stream using a context-free grammar and recursive-descent parsing.
+3. **Semantic analysis** checks declaration and usage rules through a symbol table.
 
-This project connects theoretical automata concepts with a practical compiler design application.
+The same compiler engine is available through:
 
----
+- a polished **Streamlit web interface**;
+- an interactive **terminal application**;
+- an **automated test runner**;
+- Graphviz **DFA, pipeline, token-stream, and symbol-table visualizations**.
 
-## Project Title
-
-**MiniLang: Automata-Based Compiler Front-End**
+> MiniLang is intentionally small. Its purpose is to make the relationship between automata theory, formal grammars, parsing, and semantic validation visible and easy to explore.
 
 ---
 
-## Course Information
+## Why This Project Stands Out
 
-| Field         | Details                     |
-| ------------- | --------------------------- |
-| Course        | Theory of Automata          |
-| Topic Code    | F2                          |
-| Topic Name    | Automata in Compiler Design |
-| Project Type  | Mini Compiler Front-End     |
-| Language Used | Python                      |
-| GUI Framework | Streamlit                   |
+- **Theory becomes executable:** DFA and CFG concepts are implemented as a working compiler pipeline.
+- **Phase-aware diagnostics:** lexical, syntax, and semantic failures are reported separately.
+- **Precise source locations:** errors include line and column information.
+- **Interactive learning:** the Streamlit interface exposes tokens, grammar rules, symbol tables, and visual diagrams.
+- **Reliable verification:** valid and invalid programs are evaluated through an automated test suite.
+- **Modular design:** the lexer, parser, semantic analyzer, test runner, UI, and visualizer are separated into focused modules.
 
 ---
 
-## Main Objective
+## Demo at a Glance
 
-The main objective of this project is to design and implement a small compiler front-end that demonstrates how automata theory is used in real compiler design.
-
-The compiler front-end reads MiniLang source code, breaks it into tokens, checks whether the syntax is valid according to grammar rules, performs semantic validation using a symbol table, and reports errors if the code is invalid.
-
----
-
-## Why This Project Matters
-
-This project is important because it shows the practical use of Theory of Automata in compiler construction.
-
-It demonstrates the connection between:
-
-* Regular Languages
-* Deterministic Finite Automata
-* Context-Free Grammars
-* Lexical Analysis
-* Syntax Analysis
-* Semantic Analysis
-* Compiler Front-End Design
-
-Instead of only explaining automata theory theoretically, this project applies it to a working mini-language compiler.
-
----
-
-## Supported MiniLang Syntax
-
-MiniLang currently supports:
-
-```c
-int x = 10;
-x = x + 5;
-print(x);
-
-if x > 5 {
-    print(x);
-}
-```
-
----
-
-## Features
-
-### 1. Lexical Analysis
-
-The lexical analyzer scans the source code character by character and generates tokens.
-
-Supported token types:
-
-| Token Type | Examples                          |
-| ---------- | --------------------------------- |
-| Keyword    | `int`, `if`, `print`              |
-| Identifier | `x`, `marks`, `total`             |
-| Number     | `10`, `85`, `100`                 |
-| Operator   | `=`, `+`, `-`, `*`, `/`, `>`, `<` |
-| Symbols    | `;`, `(`, `)`, `{`, `}`           |
-
----
-
-### 2. Syntax Analysis
-
-The parser checks whether the generated token stream follows MiniLang grammar rules.
-
-Example valid statement:
+### MiniLang input
 
 ```c
 int marks = 85;
+
+if marks > 50 {
+    print(marks);
+}
 ```
 
-Example invalid statement:
+### Compiler outcome
+
+```text
+Lexical Analysis:  Passed
+Syntax Analysis:   Passed
+Semantic Analysis: Passed
+
+Compilation Successful
+Result: Valid MiniLang Code
+```
+
+### Example token stream
+
+```text
+KEYWORD      int       line 1, column 1
+IDENTIFIER   marks     line 1, column 5
+OPERATOR     =         line 1, column 11
+NUMBER       85        line 1, column 13
+SEMICOLON    ;         line 1, column 15
+```
+
+---
+
+## Key Features
+
+### Lexical Analyzer
+
+The lexer scans the input character by character and recognizes:
+
+| Category | Supported values |
+|---|---|
+| Keywords | `int`, `if`, `print` |
+| Identifiers | `x`, `marks`, `total_1` |
+| Numbers | non-negative integer literals |
+| Assignment | `=` |
+| Arithmetic operators | `+`, `-`, `*`, `/` |
+| Relational operators | `>`, `<` |
+| Symbols | `;`, `(`, `)`, `{`, `}` |
+| Whitespace | spaces, tabs, and new lines |
+
+It also detects invalid identifiers such as:
+
+```c
+int 3marks = 85;
+```
+
+### Syntax Analyzer
+
+The parser is a hand-written recursive-descent parser that validates declarations, assignments, print statements, conditions, expressions, and `if` blocks.
+
+Example syntax error:
 
 ```c
 int marks = 85
 ```
 
-Error:
-
 ```text
-Syntax Error: Expected ;, found 'print'
+Syntax Error at line 1, column 15:
+Missing semicolon ';' after statement.
 ```
 
----
+### Semantic Analyzer
 
-### 3. Semantic Analysis
+The semantic analyzer builds a symbol table and enforces rules such as:
 
-The semantic analyzer checks meaning-related rules using a symbol table.
+- variables must be declared before assignment;
+- variables must be declared before use;
+- variables cannot be declared more than once;
+- printed variables must already exist;
+- variables used in conditions and expressions must already exist;
+- all MiniLang variables currently use the `int` type.
 
-Semantic rules:
-
-1. A variable must be declared before use.
-2. A variable cannot be declared more than once.
-3. Assignment is only valid for declared variables.
-4. Print statement can only print declared variables.
-5. If condition must use a declared variable.
-
-Example invalid semantic code:
+Example semantic error:
 
 ```c
-print(y);
+score = 90;
 ```
-
-Error:
 
 ```text
-Semantic Error: Variable 'y' used before declaration.
+Semantic Error at line 1, column 1:
+Cannot assign to variable 'score' because it has not been declared.
 ```
 
+### Symbol Table
+
+For every valid declaration, the compiler records:
+
+| Field | Meaning |
+|---|---|
+| Variable | Identifier name |
+| Type | Current MiniLang type (`int`) |
+| Declared line | Source line containing the declaration |
+| Declared column | Starting column of the identifier |
+| Initialized | Whether an initial value was assigned |
+
+### Interactive Streamlit Interface
+
+The web interface includes:
+
+- a MiniLang code editor;
+- numbered token-stream tables;
+- separate lexical and syntax reports;
+- symbol-table output;
+- semantic diagnostics;
+- final phase-by-phase compilation status;
+- formal grammar rules;
+- supported syntax examples;
+- compiler-flow explanations;
+- lexer DFA visualization;
+- compiler-pipeline visualization;
+- token-stream visualization;
+- symbol-table visualization.
+
+### Automated Testing
+
+The test runner:
+
+- loads valid and invalid programs from text files;
+- executes every compiler phase;
+- classifies the phase that detected each error;
+- records symbol-table output;
+- calculates passed and failed counts;
+- writes a complete report to `Test_Cases/test_results.txt`.
+
 ---
 
-### 4. Symbol Table
+## Compiler Architecture
 
-The symbol table stores declared variables with their type and location.
-
-Example:
-
-| Variable | Type | Line | Column |
-| -------- | ---- | ---- | ------ |
-| x        | int  | 1    | 5      |
-| marks    | int  | 1    | 5      |
-
----
-
-### 5. Streamlit GUI
-
-The project includes a Streamlit interface for live demonstration.
-
-The GUI shows:
-
-* Code editor
-* Token stream
-* Syntax errors
-* Symbol table
-* Semantic errors
-* Final compiler result
-* Grammar rules
-* Supported syntax
-* Project flow
-
----
-
-## Compiler Flow
-
-```text
-Source Code
-    ↓
-Lexical Analyzer
-DFA-based token recognition
-    ↓
-Token Stream
-    ↓
-Syntax Analyzer
-CFG-based parsing
-    ↓
-Semantic Analyzer
-Symbol table validation
-    ↓
-Final Result
-Valid Code / Invalid Code
+```mermaid
+flowchart TD
+    A[MiniLang Source Code] --> B[Lexical Analyzer]
+    B --> C{Lexical Errors?}
+    C -- Yes --> X[Invalid MiniLang Code]
+    C -- No --> D[Token Stream]
+    D --> E[Recursive-Descent Parser]
+    E --> F{Syntax Valid?}
+    F -- No --> X
+    F -- Yes --> G[Semantic Analyzer]
+    G --> H[Symbol Table]
+    G --> I{Semantic Valid?}
+    I -- No --> X
+    I -- Yes --> J[Valid MiniLang Code]
 ```
 
----
+### Module responsibilities
 
-## Automata Concepts Used
-
-### Deterministic Finite Automata
-
-DFA is used for lexical analysis.
-
-The lexical analyzer recognizes:
-
-* Keywords
-* Identifiers
-* Numbers
-* Operators
-* Separators
-
-Formal DFA form:
-
-```text
-DFA = (Q, Σ, δ, q0, F)
-```
-
-Where:
-
-| Symbol | Meaning                 |
-| ------ | ----------------------- |
-| Q      | Finite set of states    |
-| Σ      | Input alphabet          |
-| δ      | Transition function     |
-| q0     | Initial state           |
-| F      | Set of accepting states |
+| Module | Responsibility |
+|---|---|
+| `lexer.py` | Character scanning, token generation, lexical errors |
+| `parser.py` | CFG validation and recursive-descent syntax analysis |
+| `semantic_analyzer.py` | Symbol-table construction and semantic checks |
+| `grammar.py` | Formal MiniLang production rules |
+| `error_handler.py` | Structured and string-based error formatting |
+| `main.py` | Terminal-based compiler runner |
+| `app.py` | Streamlit web application |
+| `test_runner.py` | Automated valid/invalid test execution |
+| `visualizer.py` | Graphviz DOT generation and Streamlit diagrams |
 
 ---
+
+## Automata Concepts
+
+### Deterministic Finite Automaton
+
+The lexical analyzer follows DFA-like state transitions to recognize token classes.
+
+\[
+M = (Q, \Sigma, \delta, q_0, F)
+\]
+
+| Symbol | Meaning |
+|---|---|
+| \(Q\) | Finite set of states |
+| \(\Sigma\) | Input alphabet |
+| \(\delta\) | Transition function |
+| \(q_0\) | Initial state |
+| \(F\) | Set of accepting states |
+
+The practical scanner recognizes identifiers, keywords, numbers, operators, separators, whitespace, invalid numeric identifiers, and unknown symbols.
 
 ### Context-Free Grammar
 
-CFG is used for syntax analysis.
+The syntax analyzer validates program structure using a CFG.
 
-Formal CFG form:
+\[
+G = (V, \Sigma, P, S)
+\]
 
-```text
-CFG = (V, Σ, P, S)
-```
-
-Where:
-
-| Symbol | Meaning                 |
-| ------ | ----------------------- |
-| V      | Set of non-terminals    |
-| Σ      | Set of terminals        |
-| P      | Set of production rules |
-| S      | Start symbol            |
+| Symbol | Meaning |
+|---|---|
+| \(V\) | Non-terminal symbols |
+| \(\Sigma\) | Terminal symbols |
+| \(P\) | Production rules |
+| \(S\) | Start symbol |
 
 ---
 
 ## MiniLang Grammar
 
 ```text
-Program → StatementList
+Program        → StatementList
 
-StatementList → Statement StatementList | ε
+StatementList  → Statement StatementList
+               | ε
 
-Statement → Declaration
-          | Assignment
-          | PrintStatement
-          | IfStatement
+Statement      → Declaration
+               | Assignment
+               | PrintStatement
+               | IfStatement
 
-Declaration → int id = number ;
+Declaration    → int id = number ;
 
-Assignment → id = Expression ;
+Assignment     → id = Expression ;
 
 PrintStatement → print ( id ) ;
 
-IfStatement → if Condition { StatementList }
+IfStatement    → if Condition { StatementList }
 
-Condition → id RelOp number
+Condition      → id RelOp number
 
-Expression → id
-           | number
-           | id ArithOp number
-           | number ArithOp number
-           | id ArithOp id
-           | number ArithOp id
+Expression     → Operand
+               | Operand ArithOp Operand
 
-RelOp → > | <
+Operand        → id
+               | number
 
-ArithOp → + | - | * | /
+RelOp          → >
+               | <
+
+ArithOp        → +
+               | -
+               | *
+               | /
 ```
+
+---
+
+## Supported MiniLang Programs
+
+### Declaration
+
+```c
+int x = 10;
+```
+
+### Assignment
+
+```c
+x = 20;
+x = x + 5;
+x = 10 * 2;
+```
+
+### Print statement
+
+```c
+print(x);
+```
+
+### Conditional block
+
+```c
+if x > 5 {
+    print(x);
+}
+```
+
+### Complete example
+
+```c
+int x = 10;
+int y = 5;
+
+x = x + y;
+
+if x > 12 {
+    print(x);
+}
+```
+
+---
+
+## Error Detection Examples
+
+<details>
+<summary><strong>Lexical error — invalid identifier</strong></summary>
+
+```c
+int 3value = 10;
+```
+
+```text
+Lexical Error at line 1, column 5:
+Invalid identifier '3value'. Identifiers cannot begin with a number.
+```
+
+</details>
+
+<details>
+<summary><strong>Syntax error — missing semicolon</strong></summary>
+
+```c
+int value = 10
+```
+
+```text
+Syntax Error at line 1, column 15:
+Missing semicolon ';' after statement.
+```
+
+</details>
+
+<details>
+<summary><strong>Syntax error — incorrect print syntax</strong></summary>
+
+```c
+print value;
+```
+
+```text
+Syntax Error:
+Missing opening parenthesis '(' after 'print'.
+```
+
+</details>
+
+<details>
+<summary><strong>Semantic error — use before declaration</strong></summary>
+
+```c
+print(value);
+```
+
+```text
+Semantic Error:
+Variable 'value' cannot be printed because it has not been declared.
+```
+
+</details>
+
+<details>
+<summary><strong>Semantic error — duplicate declaration</strong></summary>
+
+```c
+int value = 10;
+int value = 20;
+```
+
+```text
+Semantic Error:
+Variable 'value' is already declared.
+```
+
+</details>
+
+---
+
+## Tech Stack
+
+<div align="center">
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)
+![Graphviz](https://img.shields.io/badge/Graphviz-DOT-2596BE?style=for-the-badge)
+![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
+![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
+![PowerShell](https://img.shields.io/badge/PowerShell-5391FE?style=for-the-badge&logo=powershell&logoColor=white)
+
+</div>
 
 ---
 
 ## Project Structure
 
 ```text
-TOA_Project_F2_Rehan/
+minilang-automata-compiler-front-end/
 │
 ├── README.md
 ├── README.txt
 ├── requirements.txt
+├── .gitignore
 │
 ├── Source_Code/
+│   ├── app.py
+│   ├── error_handler.py
+│   ├── grammar.py
 │   ├── lexer.py
+│   ├── main.py
 │   ├── parser.py
 │   ├── semantic_analyzer.py
-│   ├── main.py
-│   ├── grammar.py
-│   ├── error_handler.py
 │   ├── test_runner.py
-│   └── app.py
+│   └── visualizer.py
 │
 ├── Test_Cases/
 │   ├── valid_cases.txt
 │   ├── invalid_cases.txt
 │   └── test_results.txt
 │
+├── Diagrams/
+│   ├── lexer_dfa.dot
+│   ├── compiler_flow.dot
+│   ├── sample_token_stream.dot
+│   └── sample_symbol_table.dot
+│
 ├── Documentation/
 │   ├── formal_definitions.txt
 │   ├── grammar_rules.txt
 │   └── computation_traces.txt
 │
-└── Diagrams/
+├── Final_Report.pdf
+└── Presentation.pptx
 ```
 
 ---
 
-## Installation
+## Quick Start
 
-Clone or download the project folder.
+### Prerequisites
 
-Open PowerShell or terminal in the main project directory:
+- Python
+- `pip`
+- Git
 
-```powershell
-cd TOA_Project_F2_Rehan
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/builtbyrehan/minilang-automata-compiler-front-end.git
+cd minilang-automata-compiler-front-end
 ```
 
-Install required packages:
+### 2. Create a virtual environment
+
+#### Windows PowerShell
 
 ```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+#### macOS or Linux
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```bash
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
 ---
 
-## How to Run Console Version
+## Run the Project
 
-From the main project folder, run:
+### Streamlit web application
 
-```powershell
-python Source_Code\main.py
+From the repository root:
+
+```bash
+python -m streamlit run Source_Code/app.py
 ```
 
-You will see:
+Streamlit will display the local application URL in the terminal.
+
+### Terminal compiler
+
+```bash
+python Source_Code/main.py
+```
+
+Choose:
 
 ```text
-MINILANG COMPILER FRONT-END
-1. Run sample code
+1. Run sample MiniLang code
 2. Enter custom MiniLang code
+3. Exit
 ```
 
-Choose option `1` to run sample code.
+For custom multiline input, enter `END` on a separate line after the program.
 
-Choose option `2` to enter your own MiniLang code.
-
-When entering custom code, type `END` on a new line to finish input.
-
-Example:
-
-```c
+```text
 int x = 10;
 x = x + 5;
 print(x);
 END
 ```
 
----
+### Generate visualization files
 
-## How to Run Streamlit GUI
-
-From the main project folder, run:
-
-```powershell
-python -m streamlit run Source_Code\app.py
+```bash
+python Source_Code/visualizer.py
 ```
 
-If you are already inside the `Source_Code` folder, run:
-
-```powershell
-python -m streamlit run app.py
-```
+The generated `.dot` files are saved in the `Diagrams/` directory.
 
 ---
 
-## How to Run Test Cases
+## Testing
 
-Go to the `Source_Code` folder:
+Run the full automated test suite from the repository root:
 
-```powershell
-cd Source_Code
+```bash
+python Source_Code/test_runner.py
 ```
 
-Run:
+The runner reads:
 
-```powershell
-python test_runner.py
+```text
+Test_Cases/valid_cases.txt
+Test_Cases/invalid_cases.txt
 ```
 
-Then return to the main folder:
-
-```powershell
-cd ..
-```
-
-The test results will be saved in:
+and updates:
 
 ```text
 Test_Cases/test_results.txt
 ```
 
----
-
-## Valid Test Cases
-
-### Valid Case 1
-
-```c
-int x = 10;
-print(x);
-```
-
-Expected result:
+A successful run ends with:
 
 ```text
-Lexical Analysis: Passed
-Syntax Analysis: Passed
-Semantic Analysis: Passed
-Result: Valid MiniLang Code
+Overall Result: ALL TESTS PASSED
 ```
+
+### Test-file format
+
+Separate programs with three hyphens:
+
+```text
+int x = 10;
+print(x);
 
 ---
 
-### Valid Case 2
-
-```c
 int marks = 85;
 if marks > 50 {
     print(marks);
 }
 ```
 
-Expected result:
-
-```text
-Lexical Analysis: Passed
-Syntax Analysis: Passed
-Semantic Analysis: Passed
-Result: Valid MiniLang Code
-```
-
 ---
 
-### Valid Case 3
+## Design Decisions
 
-```c
-int x = 10;
-x = x + 5;
-print(x);
-```
+### Why a hand-written lexer?
 
-Expected result:
+A character-by-character scanner makes DFA-style token recognition transparent. It is easier to trace, explain, and connect directly to automata theory than a generated lexer.
 
-```text
-Lexical Analysis: Passed
-Syntax Analysis: Passed
-Semantic Analysis: Passed
-Result: Valid MiniLang Code
-```
+### Why recursive-descent parsing?
 
----
-
-## Invalid Test Cases
-
-### Invalid Case 1: Missing Semicolon
-
-```c
-int x = 10
-print(x);
-```
-
-Expected error:
+Recursive descent maps grammar non-terminals to readable Python methods such as:
 
 ```text
-Syntax Error: Expected ;, found 'print'
+parse_declaration()
+parse_assignment()
+parse_print_statement()
+parse_if_statement()
+parse_expression()
 ```
 
----
+This keeps the grammar-to-code relationship visible.
 
-### Invalid Case 2: Invalid Identifier
+### Why separate semantic analysis?
 
-```c
-int 123 = 10;
-```
+Syntactically correct code can still be meaningless. The semantic phase therefore validates declaration, assignment, expression, condition, and print usage through a symbol table.
 
-Expected error:
+### Why Streamlit and Graphviz?
 
-```text
-Syntax Error: Expected IDENTIFIER, found '123'
-```
-
----
-
-### Invalid Case 3: Incorrect Print Syntax
-
-```c
-print x;
-```
-
-Expected error:
-
-```text
-Syntax Error: Expected (, found 'x'
-```
-
----
-
-### Invalid Case 4: Missing Braces in If Statement
-
-```c
-if x > 5
-    print(x);
-```
-
-Expected error:
-
-```text
-Syntax Error: Expected {, found 'print'
-```
-
----
-
-### Invalid Case 5: Variable Used Before Declaration
-
-```c
-print(y);
-```
-
-Expected error:
-
-```text
-Semantic Error: Variable 'y' used before declaration.
-```
-
----
-
-### Invalid Case 6: Assignment Before Declaration
-
-```c
-x = 10;
-```
-
-Expected error:
-
-```text
-Semantic Error: Variable 'x' used before declaration.
-```
-
----
-
-### Invalid Case 7: Duplicate Declaration
-
-```c
-int x = 10;
-int x = 20;
-```
-
-Expected error:
-
-```text
-Semantic Error: Variable 'x' is already declared.
-```
-
----
-
-## Sample Output
-
-```text
-MINILANG COMPILER FRONT-END
-======================================================================
-
-TOKEN STREAM
-----------------------------------------------------------------------
-Token Type         Value              Line       Column
-----------------------------------------------------------------------
-KEYWORD            int                1          1
-IDENTIFIER         x                  1          5
-OPERATOR           =                  1          7
-NUMBER             10                 1          9
-SEMICOLON          ;                  1          11
-KEYWORD            print              2          1
-LPAREN             (                  2          6
-IDENTIFIER         x                  2          7
-RPAREN             )                  2          8
-SEMICOLON          ;                  2          9
-
-SYMBOL TABLE
-----------------------------------------------------------------------
-Variable           Type         Line       Column
-----------------------------------------------------------------------
-x                  int          1          5
-
-FINAL RESULT
-----------------------------------------------------------------------
-Lexical Analysis: Passed
-Syntax Analysis: Passed
-Semantic Analysis: Passed
-Result: Valid MiniLang Code
-```
-
----
-
-## Source Code Files
-
-| File                   | Purpose                                             |
-| ---------------------- | --------------------------------------------------- |
-| `lexer.py`             | Performs lexical analysis and generates tokens      |
-| `parser.py`            | Performs syntax analysis using grammar rules        |
-| `semantic_analyzer.py` | Performs semantic analysis and manages symbol table |
-| `grammar.py`           | Stores MiniLang CFG production rules                |
-| `error_handler.py`     | Provides structured error formatting                |
-| `main.py`              | Runs the console-based compiler front-end           |
-| `test_runner.py`       | Runs valid and invalid test cases                   |
-| `app.py`               | Runs the Streamlit GUI                              |
+Streamlit turns the compiler into an interactive learning tool, while Graphviz makes internal compiler structures easier to inspect and present.
 
 ---
 
 ## Current Limitations
 
-The current version of MiniLang is intentionally small and focused.
+MiniLang is a focused compiler **front-end**, not a complete production compiler.
 
-Limitations:
+It currently does not include:
 
-1. Supports only integer declarations.
-2. Does not support floating-point numbers.
-3. Does not support strings.
-4. Does not support functions.
-5. Does not support arrays.
-6. Does not generate machine code.
-7. Does not include advanced compiler optimization.
-8. Parse tree visualization is not yet fully implemented.
-
----
-
-## Future Improvements
-
-Possible future improvements:
-
-1. Add `while` loop support.
-2. Add `else` block support.
-3. Add string and float data types.
-4. Add parse tree visualization.
-5. Add intermediate code generation.
-6. Add symbol table scope handling.
-7. Add nested block scope validation.
-8. Add better error recovery.
-9. Add support for comments.
-10. Add GitHub Actions for automated tests.
+- floating-point, Boolean, or string data types;
+- `else`, `while`, or `for` statements;
+- comments;
+- arrays or functions;
+- block-level scopes;
+- parenthesized arithmetic expressions;
+- operator precedence;
+- expressions containing more than one arithmetic operator;
+- intermediate representation generation;
+- optimization;
+- assembly or machine-code generation;
+- runtime execution of compiled MiniLang code.
 
 ---
 
-## Academic Relevance
+## Roadmap
 
-This project is directly connected to Theory of Automata because it demonstrates how formal language concepts are applied in compiler design.
-
-The lexical analyzer uses the idea of finite automata to recognize valid tokens.
-The syntax analyzer uses context-free grammar rules to validate program structure.
-The semantic analyzer adds compiler-level validation using a symbol table.
-
-This makes the project a practical implementation of automata theory concepts.
+- [ ] Add `else` blocks
+- [ ] Add `while` loops
+- [ ] Add Boolean expressions
+- [ ] Add strings and floating-point values
+- [ ] Add comments
+- [ ] Add parenthesized expressions
+- [ ] Add precedence-aware expression parsing
+- [ ] Add Abstract Syntax Tree generation
+- [ ] Add parse-tree visualization
+- [ ] Add nested symbol-table scopes
+- [ ] Add intermediate-code generation
+- [ ] Add GitHub Actions for automated tests
+- [ ] Deploy the Streamlit interface
+- [ ] Add downloadable compiler reports
 
 ---
 
-## Project Description
+## Academic Context
 
-An automata-based MiniLang compiler front-end built in Python. It includes DFA-based lexical analysis, CFG-based syntax analysis, semantic validation using a symbol table, error reporting, test cases, and a Streamlit GUI demo.
+| Field | Details |
+|---|---|
+| Course | Theory of Automata |
+| Topic code | F2 |
+| Topic | Automata in Compiler Design |
+| Project type | Mini compiler front-end |
+| Core concepts | DFA, regular languages, CFG, parsing, symbol tables |
+| Implementation language | Python |
+| User interface | Streamlit |
+| Visualization | Graphviz DOT |
+
+This project demonstrates a practical connection between:
+
+- regular languages and lexical token recognition;
+- deterministic finite automata and scanners;
+- context-free grammars and syntax validation;
+- recursive-descent parsing and compiler construction;
+- symbol tables and semantic rules.
+
+---
+
+## Contributing
+
+Educational improvements and well-scoped contributions are welcome.
+
+1. Fork the repository.
+2. Create a feature branch.
+
+```bash
+git checkout -b feature/your-feature-name
+```
+
+3. Make and test your changes.
+4. Commit with a clear message.
+
+```bash
+git commit -m "Add: concise description of the improvement"
+```
+
+5. Push the branch.
+
+```bash
+git push origin feature/your-feature-name
+```
+
+6. Open a pull request describing:
+   - what changed;
+   - why it changed;
+   - how it was tested.
+
+Please keep changes consistent with the intentionally small MiniLang grammar unless the pull request explicitly extends the language specification.
+
+---
+
+## Troubleshooting
+
+### `streamlit` is not recognized
+
+Use the module form:
+
+```bash
+python -m streamlit run Source_Code/app.py
+```
+
+### Import errors
+
+Run the project from the repository root and confirm that dependencies are installed:
+
+```bash
+pip install -r requirements.txt
+```
+
+### PowerShell blocks virtual-environment activation
+
+Temporarily allow scripts for the current PowerShell session:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.venv\Scripts\Activate.ps1
+```
+
+### Test files are not found
+
+Use the repository-root command:
+
+```bash
+python Source_Code/test_runner.py
+```
+
+The test runner resolves paths relative to its own location.
+
+---
+
+## Documentation
+
+Additional project material is available in:
+
+- `Documentation/` — formal definitions, grammar rules, and computation traces;
+- `Diagrams/` — Graphviz DOT visualizations;
+- `Test_Cases/test_results.txt` — latest automated test report;
+- `Final_Report.pdf` — academic project report;
+- `Presentation.pptx` — presentation deck.
 
 ---
 
 ## Author
 
-**Muhammad Rehan**
+<div align="center">
+
+### Muhammad Rehan
+
+[![GitHub](https://img.shields.io/badge/GitHub-builtbyrehan-181717?style=for-the-badge&logo=github)](https://github.com/builtbyrehan)
+
+Built as a practical **Theory of Automata** project connecting formal-language theory with compiler engineering.
+
+</div>
 
 ---
 
-## License
+## License and Usage
 
-This project is developed for academic learning and demonstration purposes.
+This repository is currently presented as an **academic learning and demonstration project**. No separate OSI-approved open-source license is included at this time.
+
+Unless a license is added, copyright remains with the author and reuse should be requested or appropriately authorized.
+
+---
+
+## Support the Project
+
+<div align="center">
+
+If this project helped you understand automata or compiler front-ends:
+
+⭐ **Star the repository**  
+🍴 **Fork it and experiment with the grammar**  
+🐛 **Open an issue for reproducible bugs**  
+🚀 **Contribute a focused language feature**
+
+<br>
+
+**Made with Python, formal grammars, and a lot of state transitions.**
+
+</div>
