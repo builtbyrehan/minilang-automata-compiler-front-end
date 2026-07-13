@@ -1,0 +1,109 @@
+digraph LexerDFA {
+    rankdir=LR;
+
+    graph [
+        label="MiniLang Lexical Analyzer DFA",
+        labelloc="t",
+        fontsize=20,
+        fontname="Arial"
+    ];
+
+    node [
+        shape=circle,
+        fontname="Arial",
+        fontsize=12
+    ];
+
+    edge [
+        fontname="Arial",
+        fontsize=10
+    ];
+
+    start [
+        shape=point
+    ];
+
+    q0 [
+        label="q0\nStart"
+    ];
+
+    q_identifier [
+        label="q1\nIdentifier / Keyword",
+        shape=doublecircle
+    ];
+
+    q_number [
+        label="q2\nNumber",
+        shape=doublecircle
+    ];
+
+    q_operator [
+        label="q3\nOperator",
+        shape=doublecircle
+    ];
+
+    q_symbol [
+        label="q4\nSymbol",
+        shape=doublecircle
+    ];
+
+    q_whitespace [
+        label="q5\nWhitespace"
+    ];
+
+    q_invalid_identifier [
+        label="q6\nInvalid Identifier",
+        shape=doublecircle
+    ];
+
+    q_error [
+        label="q7\nLexical Error",
+        shape=doublecircle
+    ];
+
+    start -> q0;
+
+    q0 -> q_identifier [
+        label="letter or _"
+    ];
+
+    q_identifier -> q_identifier [
+        label="letter, digit or _"
+    ];
+
+    q0 -> q_number [
+        label="digit"
+    ];
+
+    q_number -> q_number [
+        label="digit"
+    ];
+
+    q_number -> q_invalid_identifier [
+        label="letter or _"
+    ];
+
+    q_invalid_identifier -> q_invalid_identifier [
+        label="letter, digit or _"
+    ];
+
+    q0 -> q_operator [
+        label="= + - * / > <"
+    ];
+
+    q0 -> q_symbol [
+        label="; ( ) { }"
+    ];
+
+    q0 -> q_whitespace [
+        label="space, tab or newline"
+    ];
+
+    q_whitespace -> q0 [
+        label="continue scanning"
+    ];
+
+    q0 -> q_error [
+        label="unknown character"
+    ];
+}

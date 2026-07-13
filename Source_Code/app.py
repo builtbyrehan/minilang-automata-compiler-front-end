@@ -6,10 +6,16 @@ import streamlit as st
 from grammar import MINILANG_GRAMMAR
 from parser import parse_code
 from semantic_analyzer import analyze_semantics
+from visualizer import (
+    build_compiler_flow_dot,
+    build_lexer_dfa_dot,
+    build_symbol_table_dot,
+    build_token_stream_dot,
+)
 
 
 # ----------------------------------------------------------------------
-# Streamlit page configuration
+# Page configuration
 # ----------------------------------------------------------------------
 
 st.set_page_config(
@@ -27,16 +33,11 @@ def classify_frontend_errors(errors):
     """
     Separate lexical errors from syntax errors.
 
-    The lexer and parser currently return formatted error strings.
-
     Args:
-        errors: List of lexical or syntax error messages.
+        errors: Error messages returned by parse_code().
 
     Returns:
-        tuple:
-            lexical_errors: Errors produced by lexical analysis.
-            syntax_errors: Errors produced by syntax analysis.
-            other_errors: Errors that could not be classified.
+        Tuple containing lexical, syntax, and unclassified errors.
     """
 
     lexical_errors = []
@@ -59,9 +60,7 @@ def classify_frontend_errors(errors):
 
 
 def build_token_rows(tokens):
-    """
-    Convert compiler tokens into rows suitable for Streamlit tables.
-    """
+    """Convert tokens into rows for a Streamlit dataframe."""
 
     token_rows = []
 
@@ -82,9 +81,7 @@ def build_token_rows(tokens):
 
 
 def build_symbol_rows(symbol_table):
-    """
-    Convert symbol-table entries into rows suitable for Streamlit tables.
-    """
+    """Convert the symbol table into Streamlit dataframe rows."""
 
     symbol_rows = []
 
@@ -96,7 +93,10 @@ def build_symbol_rows(symbol_table):
                 "Variable": variable_name,
                 "Type": details.get("type", "Unknown"),
                 "Declared Line": details.get("declared_line", "-"),
-                "Declared Column": details.get("declared_column", "-"),
+                "Declared Column": details.get(
+                    "declared_column",
+                    "-",
+                ),
                 "Initialized": "Yes" if initialized else "No",
             }
         )
@@ -105,14 +105,28 @@ def build_symbol_rows(symbol_table):
 
 
 def display_error_messages(errors):
-    """Display a list of compiler errors in Streamlit."""
+    """Display compiler errors using Streamlit error boxes."""
 
     for error in errors:
         st.error(error)
 
 
 # ----------------------------------------------------------------------
-# Main heading and introduction
+# Session state
+# ----------------------------------------------------------------------
+
+if "compiler_tokens" not in st.session_state:
+    st.session_state.compiler_tokens = []
+
+if "compiler_symbol_table" not in st.session_state:
+    st.session_state.compiler_symbol_table = {}
+
+if "compiler_has_run" not in st.session_state:
+    st.session_state.compiler_has_run = False
+
+
+# ----------------------------------------------------------------------
+# Application heading
 # ----------------------------------------------------------------------
 
 st.title("MiniLang: Automata-Based Compiler Front-End")
@@ -126,7 +140,7 @@ st.divider()
 
 
 # ----------------------------------------------------------------------
-# Default MiniLang program
+# Default program
 # ----------------------------------------------------------------------
 
 SAMPLE_CODE = """int marks = 85;
@@ -141,18 +155,19 @@ if marks > 50 {
 # Application tabs
 # ----------------------------------------------------------------------
 
-tab1, tab2, tab3, tab4 = st.tabs(
+tab1, tab2, tab3, tab4, tab5 = st.tabs(
     [
         "Code Editor",
         "Grammar Rules",
         "Supported Syntax",
         "Project Flow",
+        "Visualizations",
     ]
 )
 
 
 # ======================================================================
-# Tab 1: Code editor and compiler output
+# Tab 1: Code editor
 # ======================================================================
 
 with tab1:
@@ -168,7 +183,7 @@ with tab1:
     run_compiler = st.button(
         "Run Compiler",
         type="primary",
-        use_container_width=False,
+        width="content",
     )
 
     if run_compiler:
@@ -178,9 +193,11 @@ with tab1:
 
         tokens, frontend_errors, syntax_valid = parse_code(code)
 
-        lexical_errors, syntax_errors, unclassified_errors = (
-            classify_frontend_errors(frontend_errors)
-        )
+        (
+            lexical_errors,
+            syntax_errors,
+            other_errors,
+        ) = classify_frontend_errors(frontend_errors)
 
         lexical_valid = len(lexical_errors) == 0
 
@@ -199,6 +216,11 @@ with tab1:
                 semantic_valid,
             ) = analyze_semantics(tokens)
 
+        # Store results for the visualization tab.
+        st.session_state.compiler_tokens = tokens
+        st.session_state.compiler_symbol_table = symbol_table
+        st.session_state.compiler_has_run = True
+
         # --------------------------------------------------------------
         # Token stream
         # --------------------------------------------------------------
@@ -211,11 +233,14 @@ with tab1:
 
             st.dataframe(
                 token_rows,
-                use_container_width=True,
+                width="stretch",
                 hide_index=True,
             )
+
         else:
-            st.warning("No tokens were generated from the source code.")
+            st.warning(
+                "No tokens were generated from the source code."
+            )
 
         # --------------------------------------------------------------
         # Lexical analysis report
@@ -225,8 +250,12 @@ with tab1:
 
         if lexical_errors:
             display_error_messages(lexical_errors)
+
         else:
-            st.success("Lexical analysis passed. No lexical errors found.")
+            st.success(
+                "Lexical analysis passed. "
+                "No lexical errors found."
+            )
 
         # --------------------------------------------------------------
         # Syntax analysis report
@@ -236,17 +265,21 @@ with tab1:
 
         if lexical_errors:
             st.warning(
-                "Syntax analysis was skipped because lexical analysis failed."
+                "Syntax analysis was skipped because "
+                "lexical analysis failed."
             )
 
         elif syntax_errors:
             display_error_messages(syntax_errors)
 
-        elif unclassified_errors:
-            display_error_messages(unclassified_errors)
+        elif other_errors:
+            display_error_messages(other_errors)
 
         else:
-            st.success("Syntax analysis passed. No syntax errors found.")
+            st.success(
+                "Syntax analysis passed. "
+                "No syntax errors found."
+            )
 
         # --------------------------------------------------------------
         # Symbol table
@@ -256,8 +289,8 @@ with tab1:
 
         if not syntax_valid:
             st.info(
-                "The symbol table was not generated because syntax "
-                "analysis did not pass."
+                "The symbol table was not generated because "
+                "lexical or syntax analysis failed."
             )
 
         elif symbol_table:
@@ -265,12 +298,14 @@ with tab1:
 
             st.dataframe(
                 symbol_rows,
-                use_container_width=True,
+                width="stretch",
                 hide_index=True,
             )
 
         else:
-            st.info("No variables are stored in the symbol table.")
+            st.info(
+                "No variables are stored in the symbol table."
+            )
 
         # --------------------------------------------------------------
         # Semantic analysis report
@@ -280,8 +315,8 @@ with tab1:
 
         if not syntax_valid:
             st.warning(
-                "Semantic analysis was skipped because lexical or syntax "
-                "analysis failed."
+                "Semantic analysis was skipped because "
+                "lexical or syntax analysis failed."
             )
 
         elif semantic_errors:
@@ -289,55 +324,53 @@ with tab1:
 
         else:
             st.success(
-                "Semantic analysis passed. No semantic errors found."
+                "Semantic analysis passed. "
+                "No semantic errors found."
             )
 
         # --------------------------------------------------------------
-        # Final compiler result
+        # Final compilation result
         # --------------------------------------------------------------
 
         st.subheader("6. Final Compilation Result")
 
         if lexical_valid and syntax_valid and semantic_valid:
-            st.success("Compilation Successful: Valid MiniLang Code")
-
-            status_columns = st.columns(3)
-
-            with status_columns[0]:
-                st.success("Lexical Analysis: Passed")
-
-            with status_columns[1]:
-                st.success("Syntax Analysis: Passed")
-
-            with status_columns[2]:
-                st.success("Semantic Analysis: Passed")
+            st.success(
+                "Compilation Successful: Valid MiniLang Code"
+            )
 
         else:
-            st.error("Compilation Failed: Invalid MiniLang Code")
+            st.error(
+                "Compilation Failed: Invalid MiniLang Code"
+            )
 
-            status_columns = st.columns(3)
+        status_columns = st.columns(3)
 
-            with status_columns[0]:
-                if lexical_valid:
-                    st.success("Lexical Analysis: Passed")
-                else:
-                    st.error("Lexical Analysis: Failed")
+        with status_columns[0]:
+            if lexical_valid:
+                st.success("Lexical Analysis: Passed")
+            else:
+                st.error("Lexical Analysis: Failed")
 
-            with status_columns[1]:
-                if not lexical_valid:
-                    st.warning("Syntax Analysis: Skipped")
-                elif syntax_valid:
-                    st.success("Syntax Analysis: Passed")
-                else:
-                    st.error("Syntax Analysis: Failed")
+        with status_columns[1]:
+            if not lexical_valid:
+                st.warning("Syntax Analysis: Skipped")
 
-            with status_columns[2]:
-                if not syntax_valid:
-                    st.warning("Semantic Analysis: Skipped")
-                elif semantic_valid:
-                    st.success("Semantic Analysis: Passed")
-                else:
-                    st.error("Semantic Analysis: Failed")
+            elif syntax_valid:
+                st.success("Syntax Analysis: Passed")
+
+            else:
+                st.error("Syntax Analysis: Failed")
+
+        with status_columns[2]:
+            if not syntax_valid:
+                st.warning("Semantic Analysis: Skipped")
+
+            elif semantic_valid:
+                st.success("Semantic Analysis: Passed")
+
+            else:
+                st.error("Semantic Analysis: Failed")
 
 
 # ======================================================================
@@ -348,7 +381,7 @@ with tab2:
     st.subheader("MiniLang Context-Free Grammar")
 
     st.write(
-        "The following context-free grammar defines all supported "
+        "The following context-free grammar defines the supported "
         "MiniLang program structures."
     )
 
@@ -362,13 +395,13 @@ with tab2:
 
 
 # ======================================================================
-# Tab 3: Supported syntax and semantic rules
+# Tab 3: Supported syntax
 # ======================================================================
 
 with tab3:
     st.subheader("Supported MiniLang Syntax")
 
-    st.write("A complete valid MiniLang example is shown below:")
+    st.write("A complete valid MiniLang program is shown below:")
 
     st.code(
         """int x = 10;
@@ -404,17 +437,17 @@ if x > 5 {
 3. Assignment is only valid for declared variables.
 4. A print statement can only print a declared variable.
 5. An if-condition must use a declared variable.
-6. Every variable in MiniLang has the `int` data type.
+6. Every MiniLang variable has the `int` data type.
 """
     )
 
     st.subheader("Invalid Examples")
 
     st.code(
-        """int 3 = 4;        // Invalid variable name
-x = 10;           // Variable x was not declared
-print(result);    // Variable result was not declared
-int x = 5         // Missing semicolon
+        """int 3marks = 4;
+x = 10;
+print(result);
+int marks = 85
 """,
         language="c",
     )
@@ -439,15 +472,15 @@ Token Stream
           │
           ▼
 Syntax Analyzer
-Recursive-descent parsing using CFG rules
+Recursive-descent parsing using CFG
           │
           ▼
 Semantic Analyzer
-Symbol-table and declaration validation
+Symbol-table validation
           │
           ▼
 Final Compilation Result
-Valid MiniLang Code / Invalid MiniLang Code
+Valid Code / Invalid Code
 """,
         language=None,
     )
@@ -458,31 +491,101 @@ Valid MiniLang Code / Invalid MiniLang Code
 
     with component_columns[0]:
         st.markdown("### Lexical Analyzer")
+
         st.write(
-            "Reads source-code characters and converts them into tokens "
-            "such as keywords, identifiers, numbers, operators, and symbols."
+            "Reads source-code characters and converts them into "
+            "keywords, identifiers, numbers, operators, and symbols."
         )
 
     with component_columns[1]:
         st.markdown("### Syntax Analyzer")
+
         st.write(
-            "Checks whether the token sequence follows the MiniLang "
-            "context-free grammar."
+            "Checks whether the token sequence follows the "
+            "MiniLang context-free grammar."
         )
 
     with component_columns[2]:
         st.markdown("### Semantic Analyzer")
+
         st.write(
-            "Builds the symbol table and checks variable declaration and "
-            "usage rules."
+            "Builds the symbol table and verifies variable "
+            "declaration and usage rules."
         )
+
+
+# ======================================================================
+# Tab 5: Visualizations
+# ======================================================================
+
+with tab5:
+    st.subheader("MiniLang Compiler Visualizations")
+
+    visualization_tabs = st.tabs(
+        [
+            "Lexer DFA",
+            "Compiler Flow",
+            "Token Stream",
+            "Symbol Table",
+        ]
+    )
+
+    with visualization_tabs[0]:
+        st.write(
+            "This diagram represents the DFA-like states used "
+            "by the lexical analyzer."
+        )
+
+        st.graphviz_chart(
+            build_lexer_dfa_dot(),
+            width="stretch",
+        )
+
+    with visualization_tabs[1]:
+        st.write(
+            "This diagram shows the complete compiler "
+            "front-end processing flow."
+        )
+
+        st.graphviz_chart(
+            build_compiler_flow_dot(),
+            width="stretch",
+        )
+
+    with visualization_tabs[2]:
+        if st.session_state.compiler_has_run:
+            st.graphviz_chart(
+                build_token_stream_dot(
+                    st.session_state.compiler_tokens
+                ),
+                width="stretch",
+            )
+
+        else:
+            st.info(
+                "Run the compiler first to generate a token-stream "
+                "visualization."
+            )
+
+    with visualization_tabs[3]:
+        if st.session_state.compiler_has_run:
+            st.graphviz_chart(
+                build_symbol_table_dot(
+                    st.session_state.compiler_symbol_table
+                ),
+                width="stretch",
+            )
+
+        else:
+            st.info(
+                "Run the compiler first to generate a symbol-table "
+                "visualization."
+            )
 
 
 # ----------------------------------------------------------------------
 # Footer
 # ----------------------------------------------------------------------
-
-
 
 st.divider()
 

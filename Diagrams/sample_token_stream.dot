@@ -1,0 +1,32 @@
+digraph TokenStream {
+    rankdir=LR;
+
+    graph [
+        label="MiniLang Token Stream",
+        labelloc="t",
+        fontsize=20,
+        fontname="Arial"
+    ];
+
+    node [
+        shape=record,
+        fontname="Arial",
+        fontsize=10
+    ];
+
+    edge [
+        fontname="Arial",
+        fontsize=9
+    ];
+
+    token_0 [label="{Token 1|Type: KEYWORD|Value: int|Line: 1|Column: 1}"];
+    token_1 [label="{Token 2|Type: IDENTIFIER|Value: marks|Line: 1|Column: 5}"];
+    token_2 [label="{Token 3|Type: OPERATOR|Value: =|Line: 1|Column: 11}"];
+    token_3 [label="{Token 4|Type: NUMBER|Value: 85|Line: 1|Column: 13}"];
+    token_4 [label="{Token 5|Type: SEMICOLON|Value: ;|Line: 1|Column: 15}"];
+
+    token_0 -> token_1;
+    token_1 -> token_2;
+    token_2 -> token_3;
+    token_3 -> token_4;
+}

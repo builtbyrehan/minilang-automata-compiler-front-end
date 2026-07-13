@@ -1,0 +1,102 @@
+digraph CompilerFlow {
+    rankdir=TB;
+
+    graph [
+        label="MiniLang Compiler Front-End Flow",
+        labelloc="t",
+        fontsize=20,
+        fontname="Arial",
+        nodesep=0.45,
+        ranksep=0.55
+    ];
+
+    node [
+        shape=box,
+        style="rounded",
+        fontname="Arial",
+        fontsize=12,
+        margin="0.18,0.10"
+    ];
+
+    edge [
+        fontname="Arial",
+        fontsize=10
+    ];
+
+    source [
+        label="MiniLang Source Code"
+    ];
+
+    lexer [
+        label="Lexical Analyzer\nDFA-like character scanning"
+    ];
+
+    lexical_decision [
+        label="Lexical Errors?",
+        shape=diamond
+    ];
+
+    tokens [
+        label="Token Stream"
+    ];
+
+    parser [
+        label="Syntax Analyzer\nRecursive-descent parser and CFG"
+    ];
+
+    syntax_decision [
+        label="Syntax Valid?",
+        shape=diamond
+    ];
+
+    semantic [
+        label="Semantic Analyzer\nSymbol-table validation"
+    ];
+
+    semantic_decision [
+        label="Semantic Valid?",
+        shape=diamond
+    ];
+
+    valid [
+        label="Valid MiniLang Code",
+        shape=doublecircle
+    ];
+
+    invalid [
+        label="Invalid MiniLang Code",
+        shape=doublecircle
+    ];
+
+    source -> lexer;
+    lexer -> lexical_decision;
+
+    lexical_decision -> invalid [
+        label="Yes"
+    ];
+
+    lexical_decision -> tokens [
+        label="No"
+    ];
+
+    tokens -> parser;
+    parser -> syntax_decision;
+
+    syntax_decision -> invalid [
+        label="No"
+    ];
+
+    syntax_decision -> semantic [
+        label="Yes"
+    ];
+
+    semantic -> semantic_decision;
+
+    semantic_decision -> valid [
+        label="Yes"
+    ];
+
+    semantic_decision -> invalid [
+        label="No"
+    ];
+}

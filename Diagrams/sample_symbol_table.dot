@@ -1,0 +1,18 @@
+digraph SymbolTable {
+    rankdir=TB;
+
+    graph [
+        label="MiniLang Symbol Table",
+        labelloc="t",
+        fontsize=20,
+        fontname="Arial"
+    ];
+
+    node [
+        shape=record,
+        fontname="Arial",
+        fontsize=11
+    ];
+
+    symbol_table [label="{Variable | Type | Line | Column | Initialized|marks | int | 1 | 5 | Yes}"];
+}
