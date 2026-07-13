@@ -4,15 +4,38 @@ digraph SymbolTable {
     graph [
         label="MiniLang Symbol Table",
         labelloc="t",
-        fontsize=20,
-        fontname="Arial"
+        fontsize=18,
+        fontname="Arial",
+        pad=0.20,
+        margin=0.05
     ];
 
     node [
-        shape=record,
-        fontname="Arial",
-        fontsize=11
+        shape=plain,
+        fontname="Arial"
     ];
 
-    symbol_table [label="{Variable | Type | Line | Column | Initialized|marks | int | 1 | 5 | Yes}"];
+    symbol_table [
+        label=<
+            <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="8">
+
+                <TR>
+                    <TD BGCOLOR="#DCE6F1"><B>Variable</B></TD>
+                    <TD BGCOLOR="#DCE6F1"><B>Type</B></TD>
+                    <TD BGCOLOR="#DCE6F1"><B>Declared Line</B></TD>
+                    <TD BGCOLOR="#DCE6F1"><B>Declared Column</B></TD>
+                    <TD BGCOLOR="#DCE6F1"><B>Initialized</B></TD>
+                </TR>
+
+                <TR>
+                    <TD>marks</TD>
+                    <TD>int</TD>
+                    <TD>1</TD>
+                    <TD>5</TD>
+                    <TD>Yes</TD>
+                </TR>
+
+            </TABLE>
+        >
+    ];
 }

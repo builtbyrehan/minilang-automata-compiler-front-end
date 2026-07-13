@@ -4,23 +4,28 @@ digraph CompilerFlow {
     graph [
         label="MiniLang Compiler Front-End Flow",
         labelloc="t",
-        fontsize=20,
+        fontsize=18,
         fontname="Arial",
+        pad=0.20,
+        margin=0.05,
         nodesep=0.45,
-        ranksep=0.55
+        ranksep=0.38,
+        ratio="compress"
     ];
 
     node [
         shape=box,
         style="rounded",
         fontname="Arial",
-        fontsize=12,
-        margin="0.18,0.10"
+        fontsize=10,
+        margin="0.16,0.09",
+        width=2.65
     ];
 
     edge [
         fontname="Arial",
-        fontsize=10
+        fontsize=9,
+        arrowsize=0.75
     ];
 
     source [
@@ -32,21 +37,26 @@ digraph CompilerFlow {
     ];
 
     lexical_decision [
-        label="Lexical Errors?",
-        shape=diamond
+        label="Lexical errors?",
+        shape=diamond,
+        width=2.15,
+        height=0.85
     ];
 
     tokens [
-        label="Token Stream"
+        label="Token Stream",
+        width=1.80
     ];
 
     parser [
-        label="Syntax Analyzer\nRecursive-descent parser and CFG"
+        label="Syntax Analyzer\nRecursive-descent parser using CFG"
     ];
 
     syntax_decision [
-        label="Syntax Valid?",
-        shape=diamond
+        label="Syntax valid?",
+        shape=diamond,
+        width=2.15,
+        height=0.85
     ];
 
     semantic [
@@ -54,40 +64,50 @@ digraph CompilerFlow {
     ];
 
     semantic_decision [
-        label="Semantic Valid?",
-        shape=diamond
+        label="Semantic valid?",
+        shape=diamond,
+        width=2.15,
+        height=0.85
     ];
 
     valid [
         label="Valid MiniLang Code",
-        shape=doublecircle
+        shape=box,
+        style="rounded,bold",
+        peripheries=2,
+        width=2.40
     ];
 
     invalid [
         label="Invalid MiniLang Code",
-        shape=doublecircle
+        shape=box,
+        style="rounded,bold",
+        peripheries=2,
+        width=2.40
     ];
 
     source -> lexer;
     lexer -> lexical_decision;
 
-    lexical_decision -> invalid [
-        label="Yes"
-    ];
-
     lexical_decision -> tokens [
         label="No"
+    ];
+
+    lexical_decision -> invalid [
+        label="Yes",
+        constraint=false
     ];
 
     tokens -> parser;
     parser -> syntax_decision;
 
-    syntax_decision -> invalid [
-        label="No"
-    ];
-
     syntax_decision -> semantic [
         label="Yes"
+    ];
+
+    syntax_decision -> invalid [
+        label="No",
+        constraint=false
     ];
 
     semantic -> semantic_decision;
@@ -99,4 +119,10 @@ digraph CompilerFlow {
     semantic_decision -> invalid [
         label="No"
     ];
+
+    {
+        rank=same;
+        valid;
+        invalid;
+    }
 }

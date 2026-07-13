@@ -1,26 +1,37 @@
 digraph LexerDFA {
-    rankdir=LR;
+    rankdir=TB;
 
     graph [
         label="MiniLang Lexical Analyzer DFA",
         labelloc="t",
-        fontsize=20,
-        fontname="Arial"
+        fontsize=18,
+        fontname="Arial",
+        pad=0.20,
+        margin=0.05,
+        nodesep=0.35,
+        ranksep=0.50,
+        ratio="compress"
     ];
 
     node [
         shape=circle,
         fontname="Arial",
-        fontsize=12
+        fontsize=9,
+        width=1.20,
+        height=1.20,
+        fixedsize=true
     ];
 
     edge [
         fontname="Arial",
-        fontsize=10
+        fontsize=8,
+        arrowsize=0.70
     ];
 
     start [
-        shape=point
+        shape=point,
+        width=0.12,
+        height=0.12
     ];
 
     q0 [
@@ -28,7 +39,7 @@ digraph LexerDFA {
     ];
 
     q_identifier [
-        label="q1\nIdentifier / Keyword",
+        label="q1\nIdentifier\nor Keyword",
         shape=doublecircle
     ];
 
@@ -48,16 +59,17 @@ digraph LexerDFA {
     ];
 
     q_whitespace [
-        label="q5\nWhitespace"
+        label="q5\nWhitespace",
+        shape=circle
     ];
 
     q_invalid_identifier [
-        label="q6\nInvalid Identifier",
+        label="q6\nInvalid\nIdentifier",
         shape=doublecircle
     ];
 
     q_error [
-        label="q7\nLexical Error",
+        label="q7\nLexical\nError",
         shape=doublecircle
     ];
 
@@ -67,12 +79,28 @@ digraph LexerDFA {
         label="letter or _"
     ];
 
-    q_identifier -> q_identifier [
-        label="letter, digit or _"
-    ];
-
     q0 -> q_number [
         label="digit"
+    ];
+
+    q0 -> q_operator [
+        label="= + - * / > <"
+    ];
+
+    q0 -> q_symbol [
+        label="; ( ) { }"
+    ];
+
+    q0 -> q_whitespace [
+        label="space, tab,\nor newline"
+    ];
+
+    q0 -> q_error [
+        label="unknown\ncharacter"
+    ];
+
+    q_identifier -> q_identifier [
+        label="letter, digit or _"
     ];
 
     q_number -> q_number [
@@ -87,23 +115,23 @@ digraph LexerDFA {
         label="letter, digit or _"
     ];
 
-    q0 -> q_operator [
-        label="= + - * / > <"
-    ];
-
-    q0 -> q_symbol [
-        label="; ( ) { }"
-    ];
-
-    q0 -> q_whitespace [
-        label="space, tab or newline"
-    ];
-
     q_whitespace -> q0 [
-        label="continue scanning"
+        label="continue",
+        constraint=false
     ];
 
-    q0 -> q_error [
-        label="unknown character"
-    ];
+    {
+        rank=same;
+        q_identifier;
+        q_number;
+        q_operator;
+        q_symbol;
+    }
+
+    {
+        rank=same;
+        q_invalid_identifier;
+        q_whitespace;
+        q_error;
+    }
 }

@@ -1,32 +1,146 @@
 digraph TokenStream {
-    rankdir=LR;
+    rankdir=TB;
 
     graph [
         label="MiniLang Token Stream",
         labelloc="t",
-        fontsize=20,
-        fontname="Arial"
+        fontsize=18,
+        fontname="Arial",
+        pad=0.20,
+        margin=0.05
     ];
 
     node [
-        shape=record,
-        fontname="Arial",
-        fontsize=10
+        shape=plain,
+        fontname="Arial"
     ];
 
-    edge [
-        fontname="Arial",
-        fontsize=9
+    token_table [
+        label=<
+            <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="7">
+
+                <TR>
+                    <TD BGCOLOR="#DCE6F1"><B>#</B></TD>
+                    <TD BGCOLOR="#DCE6F1"><B>Token Type</B></TD>
+                    <TD BGCOLOR="#DCE6F1"><B>Value</B></TD>
+                    <TD BGCOLOR="#DCE6F1"><B>Line</B></TD>
+                    <TD BGCOLOR="#DCE6F1"><B>Column</B></TD>
+                </TR>
+
+                <TR>
+                    <TD>1</TD>
+                    <TD>KEYWORD</TD>
+                    <TD>int</TD>
+                    <TD>1</TD>
+                    <TD>1</TD>
+                </TR>
+                <TR>
+                    <TD>2</TD>
+                    <TD>IDENTIFIER</TD>
+                    <TD>marks</TD>
+                    <TD>1</TD>
+                    <TD>5</TD>
+                </TR>
+                <TR>
+                    <TD>3</TD>
+                    <TD>OPERATOR</TD>
+                    <TD>=</TD>
+                    <TD>1</TD>
+                    <TD>11</TD>
+                </TR>
+                <TR>
+                    <TD>4</TD>
+                    <TD>NUMBER</TD>
+                    <TD>85</TD>
+                    <TD>1</TD>
+                    <TD>13</TD>
+                </TR>
+                <TR>
+                    <TD>5</TD>
+                    <TD>SEMICOLON</TD>
+                    <TD>;</TD>
+                    <TD>1</TD>
+                    <TD>15</TD>
+                </TR>
+                <TR>
+                    <TD>6</TD>
+                    <TD>KEYWORD</TD>
+                    <TD>if</TD>
+                    <TD>3</TD>
+                    <TD>1</TD>
+                </TR>
+                <TR>
+                    <TD>7</TD>
+                    <TD>IDENTIFIER</TD>
+                    <TD>marks</TD>
+                    <TD>3</TD>
+                    <TD>4</TD>
+                </TR>
+                <TR>
+                    <TD>8</TD>
+                    <TD>OPERATOR</TD>
+                    <TD>&gt;</TD>
+                    <TD>3</TD>
+                    <TD>10</TD>
+                </TR>
+                <TR>
+                    <TD>9</TD>
+                    <TD>NUMBER</TD>
+                    <TD>50</TD>
+                    <TD>3</TD>
+                    <TD>12</TD>
+                </TR>
+                <TR>
+                    <TD>10</TD>
+                    <TD>LBRACE</TD>
+                    <TD>{</TD>
+                    <TD>3</TD>
+                    <TD>15</TD>
+                </TR>
+                <TR>
+                    <TD>11</TD>
+                    <TD>KEYWORD</TD>
+                    <TD>print</TD>
+                    <TD>4</TD>
+                    <TD>5</TD>
+                </TR>
+                <TR>
+                    <TD>12</TD>
+                    <TD>LPAREN</TD>
+                    <TD>(</TD>
+                    <TD>4</TD>
+                    <TD>10</TD>
+                </TR>
+                <TR>
+                    <TD>13</TD>
+                    <TD>IDENTIFIER</TD>
+                    <TD>marks</TD>
+                    <TD>4</TD>
+                    <TD>11</TD>
+                </TR>
+                <TR>
+                    <TD>14</TD>
+                    <TD>RPAREN</TD>
+                    <TD>)</TD>
+                    <TD>4</TD>
+                    <TD>16</TD>
+                </TR>
+                <TR>
+                    <TD>15</TD>
+                    <TD>SEMICOLON</TD>
+                    <TD>;</TD>
+                    <TD>4</TD>
+                    <TD>17</TD>
+                </TR>
+                <TR>
+                    <TD>16</TD>
+                    <TD>RBRACE</TD>
+                    <TD>}</TD>
+                    <TD>5</TD>
+                    <TD>1</TD>
+                </TR>
+
+            </TABLE>
+        >
     ];
-
-    token_0 [label="{Token 1|Type: KEYWORD|Value: int|Line: 1|Column: 1}"];
-    token_1 [label="{Token 2|Type: IDENTIFIER|Value: marks|Line: 1|Column: 5}"];
-    token_2 [label="{Token 3|Type: OPERATOR|Value: =|Line: 1|Column: 11}"];
-    token_3 [label="{Token 4|Type: NUMBER|Value: 85|Line: 1|Column: 13}"];
-    token_4 [label="{Token 5|Type: SEMICOLON|Value: ;|Line: 1|Column: 15}"];
-
-    token_0 -> token_1;
-    token_1 -> token_2;
-    token_2 -> token_3;
-    token_3 -> token_4;
 }

@@ -1,16 +1,17 @@
 # visualizer.py
-# Visualization utilities for the MiniLang Compiler Front-End.
+# Responsive visualization utilities for the MiniLang Compiler Front-End.
 
+from html import escape
 from pathlib import Path
 
 
 # ----------------------------------------------------------------------
-# General utility
+# Text escaping
 # ----------------------------------------------------------------------
 
 def escape_dot_text(value):
     """
-    Escape a value so it can safely appear inside a Graphviz label.
+    Escape plain text for use inside a standard Graphviz label.
     """
 
     text = str(value)
@@ -25,39 +26,58 @@ def escape_dot_text(value):
     )
 
 
+def escape_html_text(value):
+    """
+    Escape a value for use inside a Graphviz HTML-like table label.
+    """
+
+    return escape(str(value), quote=True)
+
+
 # ----------------------------------------------------------------------
-# Lexer DFA visualization
+# Lexer DFA
 # ----------------------------------------------------------------------
 
 def build_lexer_dfa_dot():
     """
-    Return the MiniLang lexical analyzer DFA as Graphviz DOT source.
+    Build a compact lexer DFA that fits the Streamlit viewport.
     """
 
     return r"""
 digraph LexerDFA {
-    rankdir=LR;
+    rankdir=TB;
 
     graph [
         label="MiniLang Lexical Analyzer DFA",
         labelloc="t",
-        fontsize=20,
-        fontname="Arial"
+        fontsize=18,
+        fontname="Arial",
+        pad=0.20,
+        margin=0.05,
+        nodesep=0.35,
+        ranksep=0.50,
+        ratio="compress"
     ];
 
     node [
         shape=circle,
         fontname="Arial",
-        fontsize=12
+        fontsize=9,
+        width=1.20,
+        height=1.20,
+        fixedsize=true
     ];
 
     edge [
         fontname="Arial",
-        fontsize=10
+        fontsize=8,
+        arrowsize=0.70
     ];
 
     start [
-        shape=point
+        shape=point,
+        width=0.12,
+        height=0.12
     ];
 
     q0 [
@@ -65,7 +85,7 @@ digraph LexerDFA {
     ];
 
     q_identifier [
-        label="q1\nIdentifier / Keyword",
+        label="q1\nIdentifier\nor Keyword",
         shape=doublecircle
     ];
 
@@ -85,16 +105,17 @@ digraph LexerDFA {
     ];
 
     q_whitespace [
-        label="q5\nWhitespace"
+        label="q5\nWhitespace",
+        shape=circle
     ];
 
     q_invalid_identifier [
-        label="q6\nInvalid Identifier",
+        label="q6\nInvalid\nIdentifier",
         shape=doublecircle
     ];
 
     q_error [
-        label="q7\nLexical Error",
+        label="q7\nLexical\nError",
         shape=doublecircle
     ];
 
@@ -104,12 +125,28 @@ digraph LexerDFA {
         label="letter or _"
     ];
 
-    q_identifier -> q_identifier [
-        label="letter, digit or _"
-    ];
-
     q0 -> q_number [
         label="digit"
+    ];
+
+    q0 -> q_operator [
+        label="= + - * / > <"
+    ];
+
+    q0 -> q_symbol [
+        label="; ( ) { }"
+    ];
+
+    q0 -> q_whitespace [
+        label="space, tab,\nor newline"
+    ];
+
+    q0 -> q_error [
+        label="unknown\ncharacter"
+    ];
+
+    q_identifier -> q_identifier [
+        label="letter, digit or _"
     ];
 
     q_number -> q_number [
@@ -124,36 +161,39 @@ digraph LexerDFA {
         label="letter, digit or _"
     ];
 
-    q0 -> q_operator [
-        label="= + - * / > <"
-    ];
-
-    q0 -> q_symbol [
-        label="; ( ) { }"
-    ];
-
-    q0 -> q_whitespace [
-        label="space, tab or newline"
-    ];
-
     q_whitespace -> q0 [
-        label="continue scanning"
+        label="continue",
+        constraint=false
     ];
 
-    q0 -> q_error [
-        label="unknown character"
-    ];
+    {
+        rank=same;
+        q_identifier;
+        q_number;
+        q_operator;
+        q_symbol;
+    }
+
+    {
+        rank=same;
+        q_invalid_identifier;
+        q_whitespace;
+        q_error;
+    }
 }
 """.strip()
 
 
 # ----------------------------------------------------------------------
-# Compiler flow visualization
+# Compiler flow
 # ----------------------------------------------------------------------
 
 def build_compiler_flow_dot():
     """
-    Return the compiler front-end flow as Graphviz DOT source.
+    Build a compact compiler-flow diagram.
+
+    Final states use double-bordered boxes instead of large circles so the
+    diagram remains readable and fits within the page.
     """
 
     return r"""
@@ -163,23 +203,28 @@ digraph CompilerFlow {
     graph [
         label="MiniLang Compiler Front-End Flow",
         labelloc="t",
-        fontsize=20,
+        fontsize=18,
         fontname="Arial",
+        pad=0.20,
+        margin=0.05,
         nodesep=0.45,
-        ranksep=0.55
+        ranksep=0.38,
+        ratio="compress"
     ];
 
     node [
         shape=box,
         style="rounded",
         fontname="Arial",
-        fontsize=12,
-        margin="0.18,0.10"
+        fontsize=10,
+        margin="0.16,0.09",
+        width=2.65
     ];
 
     edge [
         fontname="Arial",
-        fontsize=10
+        fontsize=9,
+        arrowsize=0.75
     ];
 
     source [
@@ -191,21 +236,26 @@ digraph CompilerFlow {
     ];
 
     lexical_decision [
-        label="Lexical Errors?",
-        shape=diamond
+        label="Lexical errors?",
+        shape=diamond,
+        width=2.15,
+        height=0.85
     ];
 
     tokens [
-        label="Token Stream"
+        label="Token Stream",
+        width=1.80
     ];
 
     parser [
-        label="Syntax Analyzer\nRecursive-descent parser and CFG"
+        label="Syntax Analyzer\nRecursive-descent parser using CFG"
     ];
 
     syntax_decision [
-        label="Syntax Valid?",
-        shape=diamond
+        label="Syntax valid?",
+        shape=diamond,
+        width=2.15,
+        height=0.85
     ];
 
     semantic [
@@ -213,40 +263,50 @@ digraph CompilerFlow {
     ];
 
     semantic_decision [
-        label="Semantic Valid?",
-        shape=diamond
+        label="Semantic valid?",
+        shape=diamond,
+        width=2.15,
+        height=0.85
     ];
 
     valid [
         label="Valid MiniLang Code",
-        shape=doublecircle
+        shape=box,
+        style="rounded,bold",
+        peripheries=2,
+        width=2.40
     ];
 
     invalid [
         label="Invalid MiniLang Code",
-        shape=doublecircle
+        shape=box,
+        style="rounded,bold",
+        peripheries=2,
+        width=2.40
     ];
 
     source -> lexer;
     lexer -> lexical_decision;
 
-    lexical_decision -> invalid [
-        label="Yes"
-    ];
-
     lexical_decision -> tokens [
         label="No"
+    ];
+
+    lexical_decision -> invalid [
+        label="Yes",
+        constraint=false
     ];
 
     tokens -> parser;
     parser -> syntax_decision;
 
-    syntax_decision -> invalid [
-        label="No"
-    ];
-
     syntax_decision -> semantic [
         label="Yes"
+    ];
+
+    syntax_decision -> invalid [
+        label="No",
+        constraint=false
     ];
 
     semantic -> semantic_decision;
@@ -258,6 +318,12 @@ digraph CompilerFlow {
     semantic_decision -> invalid [
         label="No"
     ];
+
+    {
+        rank=same;
+        valid;
+        invalid;
+    }
 }
 """.strip()
 
@@ -268,35 +334,29 @@ digraph CompilerFlow {
 
 def build_token_stream_dot(tokens):
     """
-    Build a left-to-right Graphviz diagram for a token stream.
+    Build a responsive token-stream table.
 
-    Args:
-        tokens: Tokens generated by lexer.py.
-
-    Returns:
-        Graphviz DOT source.
+    The former implementation placed every token in one horizontal chain.
+    That became unreadable when a program contained many tokens. This version
+    displays one compact row per token.
     """
 
     lines = [
         "digraph TokenStream {",
-        "    rankdir=LR;",
+        "    rankdir=TB;",
         "",
         "    graph [",
         '        label="MiniLang Token Stream",',
         '        labelloc="t",',
-        "        fontsize=20,",
-        '        fontname="Arial"',
+        "        fontsize=18,",
+        '        fontname="Arial",',
+        "        pad=0.20,",
+        "        margin=0.05",
         "    ];",
         "",
         "    node [",
-        "        shape=record,",
-        '        fontname="Arial",',
-        "        fontsize=10",
-        "    ];",
-        "",
-        "    edge [",
-        '        fontname="Arial",',
-        "        fontsize=9",
+        "        shape=plain,",
+        '        fontname="Arial"',
         "    ];",
         "",
     ]
@@ -304,41 +364,79 @@ def build_token_stream_dot(tokens):
     if not tokens:
         lines.extend(
             [
-                '    empty [label="No tokens generated"];',
+                "    token_table [",
+                "        label=<",
+                '            <TABLE BORDER="1" CELLBORDER="1" '
+                'CELLSPACING="0" CELLPADDING="8">',
+                '                <TR><TD>No tokens generated</TD></TR>',
+                "            </TABLE>",
+                "        >",
+                "    ];",
                 "}",
             ]
         )
 
         return "\n".join(lines)
 
-    for index, token in enumerate(tokens):
+    lines.extend(
+        [
+            "    token_table [",
+            "        label=<",
+            '            <TABLE BORDER="1" CELLBORDER="1" '
+            'CELLSPACING="0" CELLPADDING="7">',
+            "",
+            '                <TR>',
+            '                    <TD BGCOLOR="#DCE6F1"><B>#</B></TD>',
+            (
+                '                    <TD BGCOLOR="#DCE6F1">'
+                '<B>Token Type</B></TD>'
+            ),
+            (
+                '                    <TD BGCOLOR="#DCE6F1">'
+                '<B>Value</B></TD>'
+            ),
+            (
+                '                    <TD BGCOLOR="#DCE6F1">'
+                '<B>Line</B></TD>'
+            ),
+            (
+                '                    <TD BGCOLOR="#DCE6F1">'
+                '<B>Column</B></TD>'
+            ),
+            '                </TR>',
+            "",
+        ]
+    )
+
+    for index, token in enumerate(tokens, start=1):
         token_type, token_value, line, column = token
 
-        safe_type = escape_dot_text(token_type)
-        safe_value = escape_dot_text(token_value)
-        safe_line = escape_dot_text(line)
-        safe_column = escape_dot_text(column)
+        safe_type = escape_html_text(token_type)
+        safe_value = escape_html_text(token_value)
+        safe_line = escape_html_text(line)
+        safe_column = escape_html_text(column)
 
-        label = (
-            f"{{Token {index + 1}"
-            f"|Type: {safe_type}"
-            f"|Value: {safe_value}"
-            f"|Line: {safe_line}"
-            f"|Column: {safe_column}}}"
+        lines.extend(
+            [
+                "                <TR>",
+                f"                    <TD>{index}</TD>",
+                f"                    <TD>{safe_type}</TD>",
+                f"                    <TD>{safe_value}</TD>",
+                f"                    <TD>{safe_line}</TD>",
+                f"                    <TD>{safe_column}</TD>",
+                "                </TR>",
+            ]
         )
 
-        lines.append(
-            f'    token_{index} [label="{label}"];'
-        )
-
-    lines.append("")
-
-    for index in range(len(tokens) - 1):
-        lines.append(
-            f"    token_{index} -> token_{index + 1};"
-        )
-
-    lines.append("}")
+    lines.extend(
+        [
+            "",
+            "            </TABLE>",
+            "        >",
+            "    ];",
+            "}",
+        ]
+    )
 
     return "\n".join(lines)
 
@@ -349,13 +447,10 @@ def build_token_stream_dot(tokens):
 
 def build_symbol_table_dot(symbol_table):
     """
-    Build a Graphviz diagram for the semantic symbol table.
+    Build a proper horizontal symbol-table visualization.
 
-    Args:
-        symbol_table: Symbol table generated by semantic_analyzer.py.
-
-    Returns:
-        Graphviz DOT source.
+    Each variable occupies one row instead of stacking every individual field
+    vertically.
     """
 
     lines = [
@@ -365,14 +460,15 @@ def build_symbol_table_dot(symbol_table):
         "    graph [",
         '        label="MiniLang Symbol Table",',
         '        labelloc="t",',
-        "        fontsize=20,",
-        '        fontname="Arial"',
+        "        fontsize=18,",
+        '        fontname="Arial",',
+        "        pad=0.20,",
+        "        margin=0.05",
         "    ];",
         "",
         "    node [",
-        "        shape=record,",
-        '        fontname="Arial",',
-        "        fontsize=11",
+        "        shape=plain,",
+        '        fontname="Arial"',
         "    ];",
         "",
     ]
@@ -380,68 +476,106 @@ def build_symbol_table_dot(symbol_table):
     if not symbol_table:
         lines.extend(
             [
+                "    symbol_table [",
+                "        label=<",
+                '            <TABLE BORDER="1" CELLBORDER="1" '
+                'CELLSPACING="0" CELLPADDING="8">',
                 (
-                    '    empty [label="Symbol Table'
-                    '|No variables declared"];'
+                    '                <TR><TD>'
+                    'No variables declared</TD></TR>'
                 ),
+                "            </TABLE>",
+                "        >",
+                "    ];",
                 "}",
             ]
         )
 
         return "\n".join(lines)
 
-    table_fields = [
-        "Variable | Type | Line | Column | Initialized"
-    ]
+    lines.extend(
+        [
+            "    symbol_table [",
+            "        label=<",
+            '            <TABLE BORDER="1" CELLBORDER="1" '
+            'CELLSPACING="0" CELLPADDING="8">',
+            "",
+            '                <TR>',
+            (
+                '                    <TD BGCOLOR="#DCE6F1">'
+                '<B>Variable</B></TD>'
+            ),
+            (
+                '                    <TD BGCOLOR="#DCE6F1">'
+                '<B>Type</B></TD>'
+            ),
+            (
+                '                    <TD BGCOLOR="#DCE6F1">'
+                '<B>Declared Line</B></TD>'
+            ),
+            (
+                '                    <TD BGCOLOR="#DCE6F1">'
+                '<B>Declared Column</B></TD>'
+            ),
+            (
+                '                    <TD BGCOLOR="#DCE6F1">'
+                '<B>Initialized</B></TD>'
+            ),
+            '                </TR>',
+            "",
+        ]
+    )
 
     for variable_name, details in symbol_table.items():
-        safe_variable = escape_dot_text(variable_name)
-
-        safe_type = escape_dot_text(
+        safe_variable = escape_html_text(variable_name)
+        safe_type = escape_html_text(
             details.get("type", "Unknown")
         )
-
-        safe_line = escape_dot_text(
+        safe_line = escape_html_text(
             details.get("declared_line", "-")
         )
-
-        safe_column = escape_dot_text(
+        safe_column = escape_html_text(
             details.get("declared_column", "-")
         )
 
         initialized = details.get("initialized", True)
         initialized_text = "Yes" if initialized else "No"
 
-        table_fields.append(
-            f"{safe_variable} | "
-            f"{safe_type} | "
-            f"{safe_line} | "
-            f"{safe_column} | "
-            f"{initialized_text}"
+        lines.extend(
+            [
+                "                <TR>",
+                f"                    <TD>{safe_variable}</TD>",
+                f"                    <TD>{safe_type}</TD>",
+                f"                    <TD>{safe_line}</TD>",
+                f"                    <TD>{safe_column}</TD>",
+                (
+                    "                    "
+                    f"<TD>{initialized_text}</TD>"
+                ),
+                "                </TR>",
+            ]
         )
 
-    table_label = "{" + "|".join(table_fields) + "}"
-
-    lines.append(
-        f'    symbol_table [label="{table_label}"];'
+    lines.extend(
+        [
+            "",
+            "            </TABLE>",
+            "        >",
+            "    ];",
+            "}",
+        ]
     )
-
-    lines.append("}")
 
     return "\n".join(lines)
 
 
 # ----------------------------------------------------------------------
-# Streamlit visualization function
+# Streamlit renderer
 # ----------------------------------------------------------------------
 
 def display_visualizations(tokens=None, symbol_table=None):
     """
-    Display MiniLang diagrams in Streamlit.
-
-    Args:
-        tokens: Optional token stream.
-        symbol_table: Optional semantic symbol table.
+    Display all MiniLang visualizations in Streamlit.
     """
 
     import streamlit as st
@@ -461,7 +595,7 @@ def display_visualizations(tokens=None, symbol_table=None):
     )
 
     if tokens is not None:
-        st.subheader("Token Stream Visualization")
+        st.subheader("Token Stream")
 
         st.graphviz_chart(
             build_token_stream_dot(tokens),
@@ -469,7 +603,7 @@ def display_visualizations(tokens=None, symbol_table=None):
         )
 
     if symbol_table is not None:
-        st.subheader("Symbol Table Visualization")
+        st.subheader("Symbol Table")
 
         st.graphviz_chart(
             build_symbol_table_dot(symbol_table),
@@ -484,13 +618,6 @@ def display_visualizations(tokens=None, symbol_table=None):
 def save_dot_file(dot_source, output_path):
     """
     Save Graphviz DOT source to a file.
-
-    Args:
-        dot_source: Graphviz DOT text.
-        output_path: Destination path.
-
-    Returns:
-        Path of the generated file.
     """
 
     output_path = Path(output_path)
@@ -510,29 +637,26 @@ def save_dot_file(dot_source, output_path):
 
 def export_default_diagrams():
     """
-    Export default MiniLang diagrams into the Diagrams directory.
+    Export the default lexer and compiler-flow diagrams.
     """
 
-    source_code_directory = Path(__file__).resolve().parent
-    project_directory = source_code_directory.parent
-
-    diagrams_directory = (
-        project_directory / "Diagrams"
-    )
+    source_directory = Path(__file__).resolve().parent
+    project_directory = source_directory.parent
+    diagrams_directory = project_directory / "Diagrams"
 
     lexer_path = save_dot_file(
         build_lexer_dfa_dot(),
         diagrams_directory / "lexer_dfa.dot",
     )
 
-    compiler_flow_path = save_dot_file(
+    compiler_path = save_dot_file(
         build_compiler_flow_dot(),
         diagrams_directory / "compiler_flow.dot",
     )
 
     return [
         lexer_path,
-        compiler_flow_path,
+        compiler_path,
     ]
 
 
@@ -541,7 +665,9 @@ def export_default_diagrams():
 # ----------------------------------------------------------------------
 
 def main():
-    """Generate sample Graphviz DOT files."""
+    """
+    Generate responsive sample diagram files.
+    """
 
     sample_tokens = [
         ("KEYWORD", "int", 1, 1),
@@ -549,6 +675,17 @@ def main():
         ("OPERATOR", "=", 1, 11),
         ("NUMBER", "85", 1, 13),
         ("SEMICOLON", ";", 1, 15),
+        ("KEYWORD", "if", 3, 1),
+        ("IDENTIFIER", "marks", 3, 4),
+        ("OPERATOR", ">", 3, 10),
+        ("NUMBER", "50", 3, 12),
+        ("LBRACE", "{", 3, 15),
+        ("KEYWORD", "print", 4, 5),
+        ("LPAREN", "(", 4, 10),
+        ("IDENTIFIER", "marks", 4, 11),
+        ("RPAREN", ")", 4, 16),
+        ("SEMICOLON", ";", 4, 17),
+        ("RBRACE", "}", 5, 1),
     ]
 
     sample_symbol_table = {
@@ -562,33 +699,30 @@ def main():
 
     generated_files = export_default_diagrams()
 
-    source_code_directory = Path(__file__).resolve().parent
-    project_directory = source_code_directory.parent
+    source_directory = Path(__file__).resolve().parent
+    project_directory = source_directory.parent
+    diagrams_directory = project_directory / "Diagrams"
 
-    diagrams_directory = (
-        project_directory / "Diagrams"
-    )
-
-    token_stream_path = save_dot_file(
+    token_path = save_dot_file(
         build_token_stream_dot(sample_tokens),
         diagrams_directory / "sample_token_stream.dot",
     )
 
-    symbol_table_path = save_dot_file(
+    symbol_path = save_dot_file(
         build_symbol_table_dot(sample_symbol_table),
         diagrams_directory / "sample_symbol_table.dot",
     )
 
     generated_files.extend(
         [
-            token_stream_path,
-            symbol_table_path,
+            token_path,
+            symbol_path,
         ]
     )
 
-    print("MINILANG VISUALIZER")
+    print("MINILANG RESPONSIVE VISUALIZER")
     print("=" * 70)
-    print("The following diagram files were generated:")
+    print("The following files were generated:")
 
     for file_path in generated_files:
         print(f"- {file_path}")
