@@ -1,105 +1,184 @@
 MINILANG COMPLETE TEST RESULTS
-======================================================================
+==============================================================================
+Valid test cases loaded: 3
+Invalid test cases loaded: 8
 
 VALID TEST CASES
-----------------------------------------------------------------------
+==============================================================================
 
-Valid Case 1:
+Valid Case 1
+------------------------------------------------------------------------------
 int x = 10;
 print(x);
-Result: PASSED ✅
+------------------------------------------------------------------------------
 Lexical Analysis: Passed
 Syntax Analysis: Passed
 Semantic Analysis: Passed
+Test Result: PASSED
+The valid MiniLang program was accepted correctly.
 Symbol Table:
-  x → type=int, line=1, column=5
+  x -> type=int, line=1, column=5, initialized=Yes
 
-Valid Case 2:
+Valid Case 2
+------------------------------------------------------------------------------
 int marks = 85;
 if marks > 50 {
     print(marks);
 }
-Result: PASSED ✅
+------------------------------------------------------------------------------
 Lexical Analysis: Passed
 Syntax Analysis: Passed
 Semantic Analysis: Passed
+Test Result: PASSED
+The valid MiniLang program was accepted correctly.
 Symbol Table:
-  marks → type=int, line=1, column=5
+  marks -> type=int, line=1, column=5, initialized=Yes
 
-Valid Case 3:
+Valid Case 3
+------------------------------------------------------------------------------
 int x = 10;
 x = x + 5;
 print(x);
-Result: PASSED ✅
+------------------------------------------------------------------------------
 Lexical Analysis: Passed
 Syntax Analysis: Passed
 Semantic Analysis: Passed
+Test Result: PASSED
+The valid MiniLang program was accepted correctly.
 Symbol Table:
-  x → type=int, line=1, column=5
+  x -> type=int, line=1, column=5, initialized=Yes
 
 INVALID TEST CASES
-----------------------------------------------------------------------
+==============================================================================
 
-Invalid Case 1:
+Invalid Case 1
+------------------------------------------------------------------------------
 int x = 10
 print(x);
-Result: Correctly Detected Error ✅
-Detected Phase: Lexical/Syntax Analysis
-Syntax Error at line 2, column 1: Expected ;, found 'print'
+------------------------------------------------------------------------------
+Lexical Analysis: Passed
+Syntax Analysis: Failed
+Semantic Analysis: Skipped
+Test Result: PASSED
+The invalid MiniLang program was rejected correctly.
+Detected Phase: Syntax Analysis
+Detected Errors:
+1. Syntax Error at line 2, column 1: Missing semicolon ';' after statement.
 Symbol Table: Empty
 
-Invalid Case 2:
+Invalid Case 2
+------------------------------------------------------------------------------
 int 123 = 10;
-Result: Correctly Detected Error ✅
-Detected Phase: Lexical/Syntax Analysis
-Syntax Error at line 1, column 5: Expected IDENTIFIER, found '123'
+------------------------------------------------------------------------------
+Lexical Analysis: Passed
+Syntax Analysis: Failed
+Semantic Analysis: Skipped
+Test Result: PASSED
+The invalid MiniLang program was rejected correctly.
+Detected Phase: Syntax Analysis
+Detected Errors:
+1. Syntax Error at line 1, column 5: Invalid variable name '123'. A numeric literal cannot be used as a variable name. Expected an identifier.
 Symbol Table: Empty
 
-Invalid Case 3:
+Invalid Case 3
+------------------------------------------------------------------------------
 print x;
-Result: Correctly Detected Error ✅
-Detected Phase: Lexical/Syntax Analysis
-Syntax Error at line 1, column 7: Expected (, found 'x'
+------------------------------------------------------------------------------
+Lexical Analysis: Passed
+Syntax Analysis: Failed
+Semantic Analysis: Skipped
+Test Result: PASSED
+The invalid MiniLang program was rejected correctly.
+Detected Phase: Syntax Analysis
+Detected Errors:
+1. Syntax Error at line 1, column 7: Missing opening parenthesis '(' after 'print'.
 Symbol Table: Empty
 
-Invalid Case 4:
+Invalid Case 4
+------------------------------------------------------------------------------
 if x > 5
     print(x);
-Result: Correctly Detected Error ✅
-Detected Phase: Lexical/Syntax Analysis
-Syntax Error at line 2, column 5: Expected {, found 'print'
+------------------------------------------------------------------------------
+Lexical Analysis: Passed
+Syntax Analysis: Failed
+Semantic Analysis: Skipped
+Test Result: PASSED
+The invalid MiniLang program was rejected correctly.
+Detected Phase: Syntax Analysis
+Detected Errors:
+1. Syntax Error at line 2, column 5: Missing opening brace '{' after condition.
 Symbol Table: Empty
 
-Invalid Case 5:
+Invalid Case 5
+------------------------------------------------------------------------------
 print(y);
-Result: Correctly Detected Error ✅
+------------------------------------------------------------------------------
+Lexical Analysis: Passed
+Syntax Analysis: Passed
+Semantic Analysis: Failed
+Test Result: PASSED
+The invalid MiniLang program was rejected correctly.
 Detected Phase: Semantic Analysis
-Semantic Error at line 1, column 7: Variable 'y' used before declaration.
+Detected Errors:
+1. Semantic Error at line 1, column 7: Variable 'y' cannot be printed because it has not been declared.
 Symbol Table: Empty
 
-Invalid Case 6:
+Invalid Case 6
+------------------------------------------------------------------------------
 x = 10;
-Result: Correctly Detected Error ✅
+------------------------------------------------------------------------------
+Lexical Analysis: Passed
+Syntax Analysis: Passed
+Semantic Analysis: Failed
+Test Result: PASSED
+The invalid MiniLang program was rejected correctly.
 Detected Phase: Semantic Analysis
-Semantic Error at line 1, column 1: Variable 'x' used before declaration.
+Detected Errors:
+1. Semantic Error at line 1, column 1: Cannot assign to variable 'x' because it has not been declared.
 Symbol Table: Empty
 
-Invalid Case 7:
+Invalid Case 7
+------------------------------------------------------------------------------
 int x = 10;
 int x = 20;
-Result: Correctly Detected Error ✅
+------------------------------------------------------------------------------
+Lexical Analysis: Passed
+Syntax Analysis: Passed
+Semantic Analysis: Failed
+Test Result: PASSED
+The invalid MiniLang program was rejected correctly.
 Detected Phase: Semantic Analysis
-Semantic Error at line 2, column 5: Variable 'x' is already declared.
+Detected Errors:
+1. Semantic Error at line 2, column 5: Variable 'x' is already declared at line 1.
 Symbol Table:
-  x → type=int, line=1, column=5
+  x -> type=int, line=1, column=5, initialized=Yes
 
-Invalid Case 8:
+Invalid Case 8
+------------------------------------------------------------------------------
 int x = 10;
 if y > 5 {
     print(x);
 }
-Result: Correctly Detected Error ✅
+------------------------------------------------------------------------------
+Lexical Analysis: Passed
+Syntax Analysis: Passed
+Semantic Analysis: Failed
+Test Result: PASSED
+The invalid MiniLang program was rejected correctly.
 Detected Phase: Semantic Analysis
-Semantic Error at line 2, column 4: Variable 'y' used before declaration.
+Detected Errors:
+1. Semantic Error at line 2, column 4: Variable 'y' is used in a condition before declaration.
 Symbol Table:
-  x → type=int, line=1, column=5
+  x -> type=int, line=1, column=5, initialized=Yes
+
+TEST SUMMARY
+==============================================================================
+Total Tests:           11
+Total Passed:          11
+Total Failed:          0
+Valid Cases Passed:    3
+Valid Cases Failed:    0
+Invalid Cases Passed:  8
+Invalid Cases Failed:  0
+
+Overall Result: ALL TESTS PASSED
